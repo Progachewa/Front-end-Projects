@@ -323,7 +323,7 @@
 // test1.greet().setLanguage("es").greet().log();
 
 $("#login").click(function () {
-  G$.setNames();
+  G$.setNames("tom", "jone");
   G$.setLanguage($("#lang").val());
   G$.changeSelector("#greeting", true);
   G$.log();
