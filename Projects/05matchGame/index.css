@@ -46,3 +46,43 @@ body {
     color: var(--blue);
 }
 
+.popup {
+    height: 300px;
+    position: relative;
+    display: none;
+    z-index: 1;
+    text-align: center;
+    margin: 2% 35% auto; 
+    font-size: 20px;
+}
+.popupContent {
+    width: 100%;
+    height: 94%;
+    display:block;
+    background-image: url(images/win.png);
+    background-size: 100%;
+    background-repeat: no-repeat ;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    cursor: pointer;
+}
+
+.gameResults {
+    margin: 2% 5% auto;
+    width: 90%;
+    text-align: center;
+}
+table, th, td {
+    border: 1px solid black;
+  }
