@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
+    <div class="popup">
+        <span class="sysMsg">some text: you win/you lose <span class="close">&times;</span></span>
+        <span class="popupContent"></span>
+    </div>
     <div class="mainContainerGame">
         <div class="structureContainerGame">
             <div class="containerCards">
@@ -39,6 +43,22 @@
             </div>
         </div>
     </div>
+    <section class="tableInforForUser">
+        <table class="gameResults">
+            <tr>
+                <th>ID</th>
+                <th>Win/Lose</th>
+                <th>Flips</th>
+                <th>Time</th>
+            </tr>
+            <tr>
+                <td>001</td>
+                <td>Win</td>
+                <td>10</td>
+                <td>20</td>
+            </tr>
+        </table>
+    </section>
     <script src="index.js"></script>
 </body>
 </html>
