@@ -5,7 +5,7 @@ let uiElements = {
 };
 
 //onclick close the popup msg
-$closePopup.onclick = function () {
+uiElements.$closePopup.onclick = function () {
   uiElements.$popupContainer.style.display = "none";
 };
 
