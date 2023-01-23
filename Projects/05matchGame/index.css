@@ -42,7 +42,7 @@ body {
     transform-style: preserve-3d;
 }
 
-.cardSlot:hover .flipCard {
+.rotateOnClick {
     transform:rotateY(-180deg)
 }
 
@@ -52,6 +52,7 @@ body {
     height: 100%;
     border-radius: 15%;
     backface-visibility: hidden;
+    cursor: pointer;
 }
 
 .faceCard {
@@ -60,7 +61,7 @@ body {
 }
 
 .backCard {
-    background-color: transparent
+    background-color: transparent;
 }
 
 .backCard img, .faceCard img{
@@ -131,6 +132,6 @@ table, th, td {
     border: 1px solid black;
 }
 
-.cardBack:hover {
+/* .cardBack:hover {
     transform: rotateY(-180deg);
-}
+} */
