@@ -56,7 +56,6 @@ body {
 }
 
 .faceCard {
-    background-color: gray;
     transform: rotateY(180deg);
 }
 
