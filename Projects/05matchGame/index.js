@@ -3,6 +3,8 @@ let uiElements = {
   $popupContainer: document.querySelector(".popup"),
   $closePopup: document.querySelector(".close"),
   $faceCard: document.querySelector(".faceCard"),
+  $flipCounter: document.querySelector(".flipCounter"),
+  $backCard: document.querySelector(".backCard"),
 };
 
 //onclick close the popup msg
@@ -42,11 +44,10 @@ let allSavedCards = [];
     });
 })();
 
-//generate the new HTML with the slots and flips cards onclick;
+//generate the new HTML with the slots and flips cards on;
 let slotsContainer = [];
 
 function generateSlotsAndAttr() {
-  console.log(allSavedCards);
   uiElements.$containerCards.innerHTML = "";
 
   // set attributes row and col to each slot;
@@ -61,7 +62,6 @@ function generateSlotsAndAttr() {
 
   //generate  HTML with new 16 slots;
   for (let i = 0; i < slotsContainer.length; i++) {
-    // console.log(mergeSavedCards[i]);
     let upgradeSlot = slotsContainer[i];
     let HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${
       upgradeSlot.row
@@ -76,16 +76,39 @@ function generateSlotsAndAttr() {
     </div>`;
 
     uiElements.$containerCards.innerHTML += HTML;
+    uiElements.$backCard = document.querySelector(".backCard");
   }
-
-  //flip a card on click;
-  let flipCards = document.querySelectorAll(".flipCard");
-  for (let i = 0; i < flipCards.length; i++) {
-    flipCards[i].onclick = function () {
-      flipCards[i].classList.toggle("rotateOnClick");
-    };
-  }
+  flipOnClick();
 }
 
 //setTimeout to wait for the API and then invoke the func, because I use the data from API;
 let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
+
+let flipCount = 0;
+
+function flipOnClick() {
+  let flipCards = document.querySelectorAll(".flipCard");
+  for (let i = 0; i < flipCards.length; i++) {
+    let selectedCard = flipCards[i];
+    selectedCard.onclick = function () {
+      selectedCard.classList.toggle("rotateOnClick");
+    };
+    flipCounter();
+  }
+}
+
+//increment ui element on every click when flip a card;
+function flipCounter() {
+  let flipCount = 0;
+
+  //select the new created back cards;
+  uiElements.$backCard = document.querySelectorAll(".backCard");
+
+  for (let i = 0; i < uiElements.$backCard.length; i++) {
+    let upgradeBackCard = uiElements.$backCard[i];
+    upgradeBackCard.onclick = () => {
+      flipCount++;
+      uiElements.$flipCounter.innerHTML = flipCount;
+    };
+  }
+}
