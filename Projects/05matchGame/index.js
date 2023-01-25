@@ -2,6 +2,7 @@ let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
   $popupContainer: document.querySelector(".popup"),
   $closePopup: document.querySelector(".close"),
+  $faceCard: document.querySelector(".faceCard"),
 };
 
 //onclick close the popup msg
@@ -11,8 +12,10 @@ uiElements.$closePopup.onclick = function () {
 
 let savedCards = [];
 let deckId = "";
+let allSavedCards = [];
+
 (async function getData() {
-  await fetch("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")
+  await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
     .then((response) => response.json())
     .then((data) => {
       deckId = data.deck_id;
@@ -23,20 +26,27 @@ let deckId = "";
     .then((data) => {
       savedCards.push(data.cards);
       let mergeSavedCards = savedCards.flat(1);
-      console.log(mergeSavedCards);
 
-      //take a random card from API;
-      let randomCardFace = [];
-      let randomCol = Math.floor(Math.random() * 8);
-      let randomRow = Math.floor(Math.random() * 8);
-      console.log(mergeSavedCards[randomRow]);
-      console.log(mergeSavedCards[randomCol]);
+      //copy the 8 cards from API;
+      let cloneSavedCards = [...mergeSavedCards];
+      //make an array with 16 cards - 8 pairs of cards;
+      allFaceCards = mergeSavedCards.concat(cloneSavedCards);
+
+      let newFaceHTML = allFaceCards
+        .map((cardFace) => {
+          return allSavedCards.push(cardFace.images.png);
+        })
+        .join("");
+
+      return newFaceHTML;
     });
 })();
 
-//generate the new HTML with the slots;
+//generate the new HTML with the slots and flips cards onclick;
 let slotsContainer = [];
+
 function generateSlotsAndAttr() {
+  console.log(allSavedCards);
   uiElements.$containerCards.innerHTML = "";
 
   // set attributes row and col to each slot;
@@ -49,27 +59,33 @@ function generateSlotsAndAttr() {
     }
   }
 
-  // generate  HTML with new 16 slots;
+  //generate  HTML with new 16 slots;
   for (let i = 0; i < slotsContainer.length; i++) {
+    // console.log(mergeSavedCards[i]);
     let upgradeSlot = slotsContainer[i];
-    let HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
+    let HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${
+      upgradeSlot.row
+    }">
     <div class="flipCard">
         <div class="backCard">
             <img src="images/cardback_158.png" alt="backCard"/>
         </div>
-        <div class="faceCard">
-          <img src="images/gameover.png" alt="faceCard"/>
+        <div class="faceCard" id="${i + 1}">
+          <img src="${allSavedCards[i]}" />
         </div>
     </div>`;
+
     uiElements.$containerCards.innerHTML += HTML;
   }
-}
-generateSlotsAndAttr();
 
-//flip a card on click;
-let flipCards = document.querySelectorAll(".flipCard");
-for (let i = 0; i < flipCards.length; i++) {
-  flipCards[i].onclick = function () {
-    flipCards[i].classList.toggle("rotateOnClick");
-  };
+  //flip a card on click;
+  let flipCards = document.querySelectorAll(".flipCard");
+  for (let i = 0; i < flipCards.length; i++) {
+    flipCards[i].onclick = function () {
+      flipCards[i].classList.toggle("rotateOnClick");
+    };
+  }
 }
+
+//setTimeout to wait for the API and then invoke the func, because I use the data from API;
+let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
