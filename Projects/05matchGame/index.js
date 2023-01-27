@@ -5,6 +5,11 @@ let uiElements = {
   $faceCard: document.querySelector(".faceCard"),
   $flipCounter: document.querySelector(".flipCounter"),
   $backCard: document.querySelector(".backCard"),
+  $timeCounter: document.querySelector(".timeCounter"),
+};
+
+let sysMsg = {
+  popup: document.querySelector(".popup"),
 };
 
 //onclick close the popup msg
@@ -34,13 +39,14 @@ let allSavedCards = [];
       //make an array with 16 cards - 8 pairs of cards;
       allFaceCards = mergeSavedCards.concat(cloneSavedCards);
 
-      let newFaceHTML = allFaceCards
+      allFaceCards
         .map((cardFace) => {
           return allSavedCards.push(cardFace.images.png);
         })
         .join("");
 
-      return newFaceHTML;
+      //shuffle all cards;
+      allSavedCards.sort(() => 0.5 - Math.random());
     });
 })();
 
@@ -84,8 +90,6 @@ function generateSlotsAndAttr() {
 //setTimeout to wait for the API and then invoke the func, because I use the data from API;
 let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
 
-let flipCount = 0;
-
 function flipOnClick() {
   let flipCards = document.querySelectorAll(".flipCard");
   for (let i = 0; i < flipCards.length; i++) {
@@ -111,4 +115,23 @@ function flipCounter() {
       uiElements.$flipCounter.innerHTML = flipCount;
     };
   }
+}
+
+//function to show the popup msg when 1 min is gone;
+let timeCount = 60;
+let timerFunction;
+function startTimer() {
+  timerFunction = setInterval(() => {
+    timeCount--;
+    uiElements.$timeCounter.innerHTML = timeCount;
+    if (timeCount === 0) {
+      sysMsg.popup.style.display = "block";
+      stopTimer();
+    }
+  }, 1000);
+}
+startTimer();
+
+function stopTimer() {
+  clearInterval(timerFunction);
 }
