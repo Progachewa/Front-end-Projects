@@ -2,10 +2,11 @@ let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
   $popupContainer: document.querySelector(".popup"),
   $closePopup: document.querySelector(".close"),
-  $faceCard: document.querySelector(".faceCard"),
+  $faceCard: document.querySelectorAll(".faceCard"),
   $flipCounter: document.querySelector(".flipCounter"),
   $backCard: document.querySelector(".backCard"),
   $timeCounter: document.querySelector(".timeCounter"),
+  $resetBtn: document.querySelector(".resetBtn"),
 };
 
 let sysMsg = {
@@ -51,8 +52,6 @@ let allSavedCards = [];
 })();
 
 //generate the new HTML with the slots and flips cards on;
-let slotsContainer = [];
-
 function generateSlotsAndAttr() {
   uiElements.$containerCards.innerHTML = "";
 
@@ -65,25 +64,7 @@ function generateSlotsAndAttr() {
       slotsContainer.push(slotsAttr);
     }
   }
-
-  //generate  HTML with new 16 slots;
-  for (let i = 0; i < slotsContainer.length; i++) {
-    let upgradeSlot = slotsContainer[i];
-    let HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${
-      upgradeSlot.row
-    }">
-    <div class="flipCard">
-        <div class="backCard">
-            <img src="images/cardback_158.png" alt="backCard"/>
-        </div>
-        <div class="faceCard" id="${i + 1}">
-          <img src="${allSavedCards[i]}" />
-        </div>
-    </div>`;
-
-    uiElements.$containerCards.innerHTML += HTML;
-    uiElements.$backCard = document.querySelector(".backCard");
-  }
+  generateCardSlots();
   flipOnClick();
 }
 
@@ -134,4 +115,52 @@ startTimer();
 
 function stopTimer() {
   clearInterval(timerFunction);
+}
+
+function resetBtn() {
+  uiElements.$resetBtn.addEventListener("click", () => {
+    // stop the timer
+    stopTimer();
+    // make timer starts again;
+    timeCount = 60;
+    uiElements.$timeCounter.innerHTML = timeCount;
+    startTimer();
+    //make flips start again;
+    uiElements.$flipCounter.innerHTML = 0;
+    flipCounter();
+
+    //delete the old one HTML;
+    uiElements.$containerCards.innerHTML = "";
+
+    //shuffle the cards and create new HTML with new 16 card slots;
+    generateCardSlots();
+    flipOnClick();
+  });
+}
+
+resetBtn();
+
+//function to generate new 16 card Slots;
+let HTML;
+let slotsContainer = [];
+let upgradeSlot;
+
+function generateCardSlots() {
+  //shuffle the cards;
+  allSavedCards.sort(() => 0.5 - Math.random());
+
+  for (let i = 0; i < slotsContainer.length; i++) {
+    upgradeSlot = slotsContainer[i];
+    HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
+      <div class="flipCard">
+          <div class="backCard">
+              <img src="images/cardback_158.png" alt="backCard"/>
+          </div>
+          <div class="faceCard" id="${i}">
+            <img src="${allSavedCards[i]}" />
+          </div>
+      </div>`;
+
+    uiElements.$containerCards.innerHTML += HTML;
+  }
 }
