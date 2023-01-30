@@ -21,6 +21,7 @@ uiElements.$closePopup.onclick = function () {
 let savedCards = [];
 let deckId = "";
 let allSavedCards = [];
+let allFaceCards;
 
 (async function getData() {
   await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
@@ -37,20 +38,16 @@ let allSavedCards = [];
 
       //copy the 8 cards from API;
       let cloneSavedCards = [...mergeSavedCards];
+
       //make an array with 16 cards - 8 pairs of cards;
       allFaceCards = mergeSavedCards.concat(cloneSavedCards);
-
       allFaceCards
         .map((cardFace) => {
           return allSavedCards.push(cardFace.images.png);
         })
         .join("");
-
-      //shuffle all cards;
-      allSavedCards.sort(() => 0.5 - Math.random());
     });
 })();
-
 //generate the new HTML with the slots and flips cards on;
 function generateSlotsAndAttr() {
   uiElements.$containerCards.innerHTML = "";
@@ -71,21 +68,65 @@ function generateSlotsAndAttr() {
 //setTimeout to wait for the API and then invoke the func, because I use the data from API;
 let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
 
+let cardOne;
+let cardTwo;
+let matchFlipCards;
+
 function flipOnClick() {
   let flipCards = document.querySelectorAll(".flipCard");
   for (let i = 0; i < flipCards.length; i++) {
     let selectedCard = flipCards[i];
-    selectedCard.onclick = function () {
-      selectedCard.classList.toggle("rotateOnClick");
+
+    matchFlipCards = function (event) {
+      // make target = parent element (in this case parent = (".flipcard"))
+      let clickedCard = event.currentTarget;
+
+      //if clickedCard is different from the first clicked card - add class;
+      if (clickedCard !== cardOne) {
+        clickedCard.classList.add("rotateOnClick");
+
+        //if first clicked card = false; first clicked card will be the card user click;
+        if (!cardOne) {
+          return (cardOne = clickedCard);
+        }
+        //second clicked card = next clicked card;
+        cardTwo = clickedCard;
+
+        //select first clicked card img and next one clicked card img;
+        let cardOneImg = cardOne.querySelector(".faceCard img").src;
+        let cardTwoImg = cardTwo.querySelector(".faceCard img").src;
+        //add func to selected 2 clicked;
+        matchCards(cardOneImg, cardTwoImg);
+      }
     };
-    flipCounter();
+    selectedCard.addEventListener("click", matchFlipCards);
+  }
+  flipCounter();
+}
+
+//if two cards img matched;
+function matchCards(cardOneImg, cardTwoImg) {
+  //it these two clicked cards have same value, remove function on click and show clicked cards` faces; do not rotate;
+  if (cardOneImg === cardTwoImg) {
+    cardOne.removeEventListener("click", matchFlipCards);
+    cardTwo.removeEventListener("click", matchFlipCards);
+    console.log(cardOne, cardTwo);
+    //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
+    cardOne = cardTwo = "";
+    //it these two clicked cards do not have same value, wait 2 seconds and remove class rotate;( after 2 second rotate and show clicked cards` backs);
+  } else {
+    setTimeout(() => {
+      cardOne.classList.remove("rotateOnClick");
+      cardTwo.classList.remove("rotateOnClick");
+      //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
+      cardOne = cardTwo = "";
+    }, 2000);
   }
 }
 
 //increment ui element on every click when flip a card;
 function flipCounter() {
   let flipCount = 0;
-
   //select the new created back cards;
   uiElements.$backCard = document.querySelectorAll(".backCard");
 
@@ -117,6 +158,32 @@ function stopTimer() {
   clearInterval(timerFunction);
 }
 
+//function to generate new 16 card Slots;
+let HTML;
+let slotsContainer = [];
+let upgradeSlot;
+
+function generateCardSlots() {
+  for (let i = 0; i < slotsContainer.length; i++) {
+    upgradeSlot = slotsContainer[i];
+
+    //shuffle all cards;
+    //allSavedCards.sort(() => Math.random() - 0.5);
+
+    HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
+      <div class="flipCard">
+          <div class="backCard">
+              <img src="images/cardback_158.png" alt="backCard"/>
+          </div>
+          <div class="faceCard" id="${i}">
+            <img src="${allSavedCards[i]}"/>
+          </div>
+      </div>`;
+
+    uiElements.$containerCards.innerHTML += HTML;
+  }
+}
+
 function resetBtn() {
   uiElements.$resetBtn.addEventListener("click", () => {
     // stop the timer
@@ -133,34 +200,12 @@ function resetBtn() {
     uiElements.$containerCards.innerHTML = "";
 
     //shuffle the cards and create new HTML with new 16 card slots;
+
+    //shuffle all cards;
+    //allSavedCards.sort(() => Math.random() - 0.5);
     generateCardSlots();
     flipOnClick();
   });
 }
 
 resetBtn();
-
-//function to generate new 16 card Slots;
-let HTML;
-let slotsContainer = [];
-let upgradeSlot;
-
-function generateCardSlots() {
-  //shuffle the cards;
-  allSavedCards.sort(() => 0.5 - Math.random());
-
-  for (let i = 0; i < slotsContainer.length; i++) {
-    upgradeSlot = slotsContainer[i];
-    HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
-      <div class="flipCard">
-          <div class="backCard">
-              <img src="images/cardback_158.png" alt="backCard"/>
-          </div>
-          <div class="faceCard" id="${i}">
-            <img src="${allSavedCards[i]}" />
-          </div>
-      </div>`;
-
-    uiElements.$containerCards.innerHTML += HTML;
-  }
-}
