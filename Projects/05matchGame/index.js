@@ -6,11 +6,13 @@ let cardOne;
 let cardTwo;
 let matchFlipCards;
 let flipCount = 0;
-let timeCount = 60;
+let timeCount = 10;
 let timerFunction;
 let HTML;
 let slotsContainer = [];
 let upgradeSlot;
+let matchCardsCounter = 0;
+let maxPairCards = 8;
 
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
@@ -25,6 +27,8 @@ let uiElements = {
 
 let sysMsg = {
   popup: document.querySelector(".popup"),
+  popupWinLose: document.querySelector(".sysMsg"),
+  popupImage: document.querySelector(".popupContent"),
 };
 
 (async function getData() {
@@ -53,7 +57,6 @@ let sysMsg = {
     });
   //randomize the cards from API;
   allSavedCards.sort(() => Math.random() - 0.5);
-  console.log(allSavedCards);
 })();
 
 //generate the new HTML with the slots and flips cards on;
@@ -112,15 +115,37 @@ function flipOnClick() {
 function matchCards(cardOneImg, cardTwoImg) {
   //it these two clicked cards have same value, remove function on click and show clicked cards` faces; do not rotate;
   if (cardOneImg === cardTwoImg) {
+    //increment the match counter if two clicked cards are the same;
+    matchCardsCounter++;
+
+    //if user flips all cards and have remaing time, show pop up msg with time and flips and image win;
+    if (matchCardsCounter === maxPairCards && timeCount > 0) {
+      uiElements.$timeCounter.innerHTML = "";
+      uiElements.$timeCounter.innerHTML += timeCount;
+
+      stopTimer();
+
+      uiElements.$popupContainer.style.display = "block";
+      sysMsg.popupWinLose.innerHTML = "";
+      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount}`;
+      sysMsg.popupImage.style.backgroundImage = "url('images/win.png')";
+
+      // when popup msg is shown, disable cards to be clicked;
+      uiElements.$containerCards.classList.add("disableClick");
+    }
+
     cardOne.removeEventListener("click", matchFlipCards);
     cardTwo.removeEventListener("click", matchFlipCards);
+
     //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
     cardOne = cardTwo = "";
+
     //it these two clicked cards do not have same value, wait 2 seconds and remove class rotate;( after 2 second rotate and show clicked cards` backs);
   } else {
     setTimeout(() => {
       cardOne.classList.remove("rotateOnClick");
       cardTwo.classList.remove("rotateOnClick");
+
       //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
       cardOne = cardTwo = "";
     }, 2000);
@@ -147,8 +172,16 @@ function startTimer() {
   timerFunction = setInterval(() => {
     timeCount--;
     uiElements.$timeCounter.innerHTML = timeCount;
-    if (timeCount === 0) {
-      sysMsg.popup.style.display = "block";
+    // if time is up and user does not collect all cards pairs = pop up msg(gameover);
+    if (timeCount === 0 && matchCardsCounter < maxPairCards) {
+      uiElements.$popupContainer.style.display = "block";
+      sysMsg.popupWinLose.innerHTML = "";
+      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount}`;
+      sysMsg.popupImage.style.backgroundImage = "url('images/gameover.png')";
+
+      // when popup msg is shown, disable cards to be clicked;
+      uiElements.$containerCards.classList.add("disableClick");
+
       stopTimer();
     }
   }, 1000);
@@ -189,6 +222,13 @@ function resetBtn() {
     //make flips start again;
     uiElements.$flipCounter.innerHTML = 0;
     flipCounter();
+
+    //make
+    // allow cards to be clicked again, when reset is clicked;
+    uiElements.$containerCards.classList.remove("disableClick");
+
+    // hide the popup msg;
+    uiElements.$popupContainer.style.display = "none";
 
     //delete the old one HTML;
     uiElements.$containerCards.innerHTML = "";
