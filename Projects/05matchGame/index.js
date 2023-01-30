@@ -1,3 +1,17 @@
+let savedCards = [];
+let deckId = "";
+let allSavedCards = [];
+let allFaceCards;
+let cardOne;
+let cardTwo;
+let matchFlipCards;
+let flipCount = 0;
+let timeCount = 60;
+let timerFunction;
+let HTML;
+let slotsContainer = [];
+let upgradeSlot;
+
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
   $popupContainer: document.querySelector(".popup"),
@@ -12,16 +26,6 @@ let uiElements = {
 let sysMsg = {
   popup: document.querySelector(".popup"),
 };
-
-//onclick close the popup msg
-uiElements.$closePopup.onclick = function () {
-  uiElements.$popupContainer.style.display = "none";
-};
-
-let savedCards = [];
-let deckId = "";
-let allSavedCards = [];
-let allFaceCards;
 
 (async function getData() {
   await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
@@ -47,7 +51,11 @@ let allFaceCards;
         })
         .join("");
     });
+  //randomize the cards from API;
+  allSavedCards.sort(() => Math.random() - 0.5);
+  console.log(allSavedCards);
 })();
+
 //generate the new HTML with the slots and flips cards on;
 function generateSlotsAndAttr() {
   uiElements.$containerCards.innerHTML = "";
@@ -67,10 +75,6 @@ function generateSlotsAndAttr() {
 
 //setTimeout to wait for the API and then invoke the func, because I use the data from API;
 let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
-
-let cardOne;
-let cardTwo;
-let matchFlipCards;
 
 function flipOnClick() {
   let flipCards = document.querySelectorAll(".flipCard");
@@ -110,7 +114,6 @@ function matchCards(cardOneImg, cardTwoImg) {
   if (cardOneImg === cardTwoImg) {
     cardOne.removeEventListener("click", matchFlipCards);
     cardTwo.removeEventListener("click", matchFlipCards);
-    console.log(cardOne, cardTwo);
     //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
     cardOne = cardTwo = "";
     //it these two clicked cards do not have same value, wait 2 seconds and remove class rotate;( after 2 second rotate and show clicked cards` backs);
@@ -126,7 +129,7 @@ function matchCards(cardOneImg, cardTwoImg) {
 
 //increment ui element on every click when flip a card;
 function flipCounter() {
-  let flipCount = 0;
+  flipCount = 0;
   //select the new created back cards;
   uiElements.$backCard = document.querySelectorAll(".backCard");
 
@@ -140,8 +143,6 @@ function flipCounter() {
 }
 
 //function to show the popup msg when 1 min is gone;
-let timeCount = 60;
-let timerFunction;
 function startTimer() {
   timerFunction = setInterval(() => {
     timeCount--;
@@ -159,16 +160,9 @@ function stopTimer() {
 }
 
 //function to generate new 16 card Slots;
-let HTML;
-let slotsContainer = [];
-let upgradeSlot;
-
 function generateCardSlots() {
   for (let i = 0; i < slotsContainer.length; i++) {
     upgradeSlot = slotsContainer[i];
-
-    //shuffle all cards;
-    //allSavedCards.sort(() => Math.random() - 0.5);
 
     HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
       <div class="flipCard">
@@ -199,13 +193,17 @@ function resetBtn() {
     //delete the old one HTML;
     uiElements.$containerCards.innerHTML = "";
 
-    //shuffle the cards and create new HTML with new 16 card slots;
-
-    //shuffle all cards;
-    //allSavedCards.sort(() => Math.random() - 0.5);
+    //shuffle the cards again and create new HTML with new 16 card slots;
+    allSavedCards.sort(() => Math.random() - 0.5);
     generateCardSlots();
+
     flipOnClick();
   });
 }
 
 resetBtn();
+
+//onclick close the popup msg
+uiElements.$closePopup.onclick = function () {
+  uiElements.$popupContainer.style.display = "none";
+};
