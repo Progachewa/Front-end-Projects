@@ -6,7 +6,7 @@ let cardOne;
 let cardTwo;
 let matchFlipCards;
 let flipCount = 0;
-let timeCount = 10;
+let timeCount = 60;
 let timerFunction;
 let HTML;
 let slotsContainer = [];
@@ -127,8 +127,13 @@ function matchCards(cardOneImg, cardTwoImg) {
 
       uiElements.$popupContainer.style.display = "block";
       sysMsg.popupWinLose.innerHTML = "";
-      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount}`;
+      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount} <span class="close">&times;</span>`;
       sysMsg.popupImage.style.backgroundImage = "url('images/win.png')";
+
+      //if "x" is clicked, hide the popup;
+      document.querySelector(".close").onclick = () => {
+        uiElements.$popupContainer.style.display = "none";
+      };
 
       // when popup msg is shown, disable cards to be clicked;
       uiElements.$containerCards.classList.add("disableClick");
@@ -176,7 +181,14 @@ function startTimer() {
     if (timeCount === 0 && matchCardsCounter < maxPairCards) {
       uiElements.$popupContainer.style.display = "block";
       sysMsg.popupWinLose.innerHTML = "";
-      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount}`;
+      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount} <span class="close">&times;</span>`;
+
+      //if "x" is clicked, hide the popup;
+      document.querySelector(".close").onclick = () => {
+        uiElements.$popupContainer.style.display = "none";
+      };
+
+      //uiElements.$popupContainer.style.display = "none";
       sysMsg.popupImage.style.backgroundImage = "url('images/gameover.png')";
 
       // when popup msg is shown, disable cards to be clicked;
@@ -242,8 +254,3 @@ function resetBtn() {
 }
 
 resetBtn();
-
-//onclick close the popup msg
-uiElements.$closePopup.onclick = function () {
-  uiElements.$popupContainer.style.display = "none";
-};
