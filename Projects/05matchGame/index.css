@@ -89,9 +89,12 @@ body {
 }
 
 .popup {
-    height: 94%;
+    width: 40%;
+    height: 70%;
     position: absolute;
-    left: 6%;
+    top: 0%;
+    right: 30%;
+    left: 30%;
     display: none;
     z-index: 1;
     text-align: center;
