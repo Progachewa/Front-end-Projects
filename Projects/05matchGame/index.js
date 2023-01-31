@@ -13,6 +13,10 @@ let slotsContainer = [];
 let upgradeSlot;
 let matchCardsCounter = 0;
 let maxPairCards = 8;
+let savedDataFromGame = [];
+let imgURL;
+let allGames = "";
+let result;
 
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
@@ -31,6 +35,7 @@ let sysMsg = {
   popupImage: document.querySelector(".popupContent"),
 };
 
+//get data from API;
 (async function getData() {
   await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
     .then((response) => response.json())
@@ -118,17 +123,17 @@ function matchCards(cardOneImg, cardTwoImg) {
     //increment the match counter if two clicked cards are the same;
     matchCardsCounter++;
 
-    //if user flips all cards and have remaing time, show pop up msg with time and flips and image win;
+    //if user flips all cards and have remaininng time, show pop up msg with time and flips and image win;
     if (matchCardsCounter === maxPairCards && timeCount > 0) {
       uiElements.$timeCounter.innerHTML = "";
       uiElements.$timeCounter.innerHTML += timeCount;
 
       stopTimer();
 
-      uiElements.$popupContainer.style.display = "block";
-      sysMsg.popupWinLose.innerHTML = "";
-      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount} <span class="close">&times;</span>`;
-      sysMsg.popupImage.style.backgroundImage = "url('images/win.png')";
+      //show popup msg with win img and game statistic;
+      result = "Win";
+      imgURL = "images/win.png";
+      popupContent(timeCount, flipCount, imgURL);
 
       //if "x" is clicked, hide the popup;
       document.querySelector(".close").onclick = () => {
@@ -179,17 +184,10 @@ function startTimer() {
     uiElements.$timeCounter.innerHTML = timeCount;
     // if time is up and user does not collect all cards pairs = pop up msg(gameover);
     if (timeCount === 0 && matchCardsCounter < maxPairCards) {
-      uiElements.$popupContainer.style.display = "block";
-      sysMsg.popupWinLose.innerHTML = "";
-      sysMsg.popupWinLose.innerHTML = `time left: ${timeCount}s | flips: ${flipCount} <span class="close">&times;</span>`;
-
-      //if "x" is clicked, hide the popup;
-      document.querySelector(".close").onclick = () => {
-        uiElements.$popupContainer.style.display = "none";
-      };
-
-      //uiElements.$popupContainer.style.display = "none";
-      sysMsg.popupImage.style.backgroundImage = "url('images/gameover.png')";
+      //show popup msg with gameover img and game statistic;
+      imgURL = "images/gameover.png";
+      result = "Game Over";
+      popupContent(timeCount, flipCount, imgURL);
 
       // when popup msg is shown, disable cards to be clicked;
       uiElements.$containerCards.classList.add("disableClick");
@@ -202,6 +200,28 @@ startTimer();
 
 function stopTimer() {
   clearInterval(timerFunction);
+}
+
+//popup - game statistic;
+function popupContent(time, flips, img) {
+  //save data from popup;
+  savedDataFromGame.push(result, flips, time);
+  localStorage.setItem("gameResult", JSON.stringify(savedDataFromGame));
+  document.querySelector(".gameResults").innerHTML += `<tr>
+                                                          <td>${result}</td>
+                                                          <td>${flips}</td>
+                                                          <td>${time}</td>
+                                                        </tr>`;
+
+  uiElements.$popupContainer.style.display = "block";
+  sysMsg.popupWinLose.innerHTML = "";
+  sysMsg.popupWinLose.innerHTML = `time left: ${time}s | flips: ${flips} <span class="close">&times;</span>`;
+  sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
+
+  //if "x" is clicked, hide the popup;
+  document.querySelector(".close").onclick = () => {
+    uiElements.$popupContainer.style.display = "none";
+  };
 }
 
 //function to generate new 16 card Slots;
@@ -231,11 +251,11 @@ function resetBtn() {
     timeCount = 60;
     uiElements.$timeCounter.innerHTML = timeCount;
     startTimer();
+
     //make flips start again;
     uiElements.$flipCounter.innerHTML = 0;
     flipCounter();
 
-    //make
     // allow cards to be clicked again, when reset is clicked;
     uiElements.$containerCards.classList.remove("disableClick");
 
