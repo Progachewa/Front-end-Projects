@@ -16,7 +16,6 @@ let maxPairCards = 8;
 let savedDataFromGame = [];
 let imgURL;
 let allGames = "";
-let result;
 
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
@@ -27,6 +26,7 @@ let uiElements = {
   $backCard: document.querySelector(".backCard"),
   $timeCounter: document.querySelector(".timeCounter"),
   $resetBtn: document.querySelector(".resetBtn"),
+  $gameResults: document.querySelector(".gameResults"),
 };
 
 let sysMsg = {
@@ -158,7 +158,7 @@ function matchCards(cardOneImg, cardTwoImg) {
 
       //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
       cardOne = cardTwo = "";
-    }, 2000);
+    }, 1200);
   }
 }
 
@@ -205,12 +205,23 @@ function stopTimer() {
 //popup - game statistic;
 function popupContent(time, flips, img) {
   //save data from popup;
-  savedDataFromGame.push(result, flips, time);
+  savedDataFromGame.push({
+    result: `${result}`,
+    flips: parseInt(`${flips}`),
+    time: parseInt(`${time}`),
+    matchedCards: parseInt(`${matchCardsCounter}`),
+  });
+
+  checkGameResults(savedDataFromGame);
+
+  //save the result of game in local storage;
   localStorage.setItem("gameResult", JSON.stringify(savedDataFromGame));
-  document.querySelector(".gameResults").innerHTML += `<tr>
+
+  uiElements.$gameResults.innerHTML += `<tr>
                                                           <td>${result}</td>
                                                           <td>${flips}</td>
                                                           <td>${time}</td>
+                                                          <td>${matchCardsCounter}</td>
                                                         </tr>`;
 
   uiElements.$popupContainer.style.display = "block";
@@ -222,6 +233,28 @@ function popupContent(time, flips, img) {
   document.querySelector(".close").onclick = () => {
     uiElements.$popupContainer.style.display = "none";
   };
+}
+
+//logic to take the most matched cards for minimal time;
+function checkGameResults(gameResults) {
+  let msg = "";
+  let currentMatchedCards = 0;
+
+  gameResults.map((currentResult) => {
+    let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
+
+    //check if it`s first game - automatic new record;
+    if (gameResults.length === 1) {
+      msg = "new record";
+    } //check numbers of matched cards;
+    else if (mostMatchedCards) {
+      currentMatchedCards = currentResult.matchedCards;
+      msg = "new record";
+    } else {
+      msg = "no record";
+    }
+  });
+  alert(`${msg}`);
 }
 
 //function to generate new 16 card Slots;
@@ -268,6 +301,9 @@ function resetBtn() {
     //shuffle the cards again and create new HTML with new 16 card slots;
     allSavedCards.sort(() => Math.random() - 0.5);
     generateCardSlots();
+
+    //clear the match counter;
+    matchCardsCounter = 0;
 
     flipOnClick();
   });
