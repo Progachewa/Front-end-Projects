@@ -6,7 +6,7 @@ let cardOne;
 let cardTwo;
 let matchFlipCards;
 let flipCount = 0;
-let timeCount = 10;
+let timeCount = 60;
 let timerFunction;
 let HTML;
 let slotsContainer = [];
@@ -41,6 +41,10 @@ let sysMsg = {
     .then((response) => response.json())
     .then((data) => {
       deckId = data.deck_id;
+    })
+    .catch(() => {
+      document.body.innerHTML =
+        "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
     });
 
   await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
@@ -59,12 +63,14 @@ let sysMsg = {
           return allSavedCards.push(cardFace.images.png);
         })
         .join("");
+    })
+    .catch(() => {
+      document.body.innerHTML =
+        "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
     });
   //randomize the cards from API;
   allSavedCards.sort(() => Math.random() - 0.5);
 })();
-
-//TODO: if allSavedCards = empty.....
 
 //generate the new HTML with the slots and flips cards on;
 function generateSlotsAndAttr() {
@@ -285,7 +291,7 @@ function resetBtn() {
     // stop the timer
     stopTimer();
     // make timer starts again;
-    timeCount = 20;
+    timeCount = 60;
     uiElements.$timeCounter.innerHTML = timeCount;
     startTimer();
 
