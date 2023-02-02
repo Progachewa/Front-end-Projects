@@ -1,6 +1,5 @@
 
 :root {
-    --blue:  rgb(105, 12, 227);
     --white: rgb(250, 239, 239);
 }
 
@@ -151,4 +150,9 @@ table, th, td {
     padding: 10px 0px;
     box-shadow: 0px 5px 5px rgb(0 0 0 / 20%);
     margin: 2% 3% auto;
+}
+
+.disableClick {
+    pointer-events: none;
+    opacity: 0.85;
 }

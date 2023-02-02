@@ -148,6 +148,9 @@ function matchCards(cardOneImg, cardTwoImg) {
       document.querySelector(".close").onclick = () => {
         uiElements.$popupContainer.style.display = "none";
       };
+
+      // when popup msg is shown, disable cards to be clicked;
+      uiElements.$containerCards.classList.add("disableClick");
     }
 
     cardOne.removeEventListener("click", matchFlipCards);
@@ -194,6 +197,9 @@ function startTimer() {
       imgURL = "images/gameover.png";
       result = "Game Over";
       popupContent(timeCount, flipCount, imgURL);
+
+      // when popup msg is shown, disable cards to be clicked;
+      uiElements.$containerCards.classList.add("disableClick");
 
       stopTimer();
     }
@@ -253,7 +259,7 @@ function checkGameResults(gameResults) {
     //check if it`s first game - automatic new record and check numbers of matched cards;
     if (gameResults.length === 1 || mostMatchedCards) {
       currentMatchedCards = currentResult.matchedCards;
-      heightScore = `<br/> 
+      heightScore = `<br/>
       <span style="font-size: 20px;">New record</span>`;
     } else {
       heightScore = "";
@@ -293,6 +299,9 @@ function resetBtn() {
     //make flips start again;
     uiElements.$flipCounter.innerHTML = 0;
     flipCounter();
+
+    // allow cards to be clicked again, when reset is clicked;
+    uiElements.$containerCards.classList.remove("disableClick");
 
     // hide the popup msg;
     uiElements.$popupContainer.style.display = "none";
