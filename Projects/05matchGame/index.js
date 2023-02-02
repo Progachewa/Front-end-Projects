@@ -6,7 +6,7 @@ let cardOne;
 let cardTwo;
 let matchFlipCards;
 let flipCount = 0;
-let timeCount = 60;
+let timeCount = 10;
 let timerFunction;
 let HTML;
 let slotsContainer = [];
@@ -64,6 +64,8 @@ let sysMsg = {
   allSavedCards.sort(() => Math.random() - 0.5);
 })();
 
+//TODO: if allSavedCards = empty.....
+
 //generate the new HTML with the slots and flips cards on;
 function generateSlotsAndAttr() {
   uiElements.$containerCards.innerHTML = "";
@@ -85,6 +87,7 @@ function generateSlotsAndAttr() {
 let invokeGenerateSlots = setTimeout(generateSlotsAndAttr, 1000);
 
 function flipOnClick() {
+  console.log(allSavedCards);
   let flipCards = document.querySelectorAll(".flipCard");
   for (let i = 0; i < flipCards.length; i++) {
     let selectedCard = flipCards[i];
@@ -212,8 +215,6 @@ function popupContent(time, flips, img) {
     matchedCards: parseInt(`${matchCardsCounter}`),
   });
 
-  checkGameResults(savedDataFromGame);
-
   //save the result of game in local storage;
   localStorage.setItem("gameResult", JSON.stringify(savedDataFromGame));
 
@@ -224,10 +225,16 @@ function popupContent(time, flips, img) {
                                                           <td>${matchCardsCounter}</td>
                                                         </tr>`;
 
-  uiElements.$popupContainer.style.display = "block";
+  //show popup in 1 sec => to see the last flipped card face;
+  setTimeout(() => {
+    uiElements.$popupContainer.style.display = "block";
+  }, 1000);
+
   sysMsg.popupWinLose.innerHTML = "";
-  sysMsg.popupWinLose.innerHTML = `time left: ${time}s | flips: ${flips} <span class="close">&times;</span>`;
+  sysMsg.popupWinLose.innerHTML = `Time left: ${time}s | Flips: ${flips} <span class="close">&times;</span>`;
   sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
+
+  checkGameResults(savedDataFromGame);
 
   //if "x" is clicked, hide the popup;
   document.querySelector(".close").onclick = () => {
@@ -237,24 +244,21 @@ function popupContent(time, flips, img) {
 
 //logic to take the most matched cards for minimal time;
 function checkGameResults(gameResults) {
-  let msg = "";
   let currentMatchedCards = 0;
+  let heightScore;
 
   gameResults.map((currentResult) => {
     let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
 
-    //check if it`s first game - automatic new record;
-    if (gameResults.length === 1) {
-      msg = "new record";
-    } //check numbers of matched cards;
-    else if (mostMatchedCards) {
+    //check if it`s first game - automatic new record and check numbers of matched cards;
+    if (gameResults.length === 1 || mostMatchedCards) {
       currentMatchedCards = currentResult.matchedCards;
-      msg = "new record";
+      heightScore = `<span style="font-size: 20px;">New record</span>`;
     } else {
-      msg = "no record";
+      heightScore = "";
     }
   });
-  alert(`${msg}`);
+  sysMsg.popupWinLose.innerHTML += `${heightScore}`;
 }
 
 //function to generate new 16 card Slots;
@@ -281,7 +285,7 @@ function resetBtn() {
     // stop the timer
     stopTimer();
     // make timer starts again;
-    timeCount = 60;
+    timeCount = 20;
     uiElements.$timeCounter.innerHTML = timeCount;
     startTimer();
 
