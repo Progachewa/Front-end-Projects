@@ -16,6 +16,8 @@ let maxPairCards = 8;
 let savedDataFromGame = [];
 let imgURL;
 let allGames = "";
+let takeResultLocalStorage;
+let currentResult;
 
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
@@ -223,13 +225,19 @@ function popupContent(time, flips, img) {
 
   //save the result of game in local storage;
   localStorage.setItem("gameResult", JSON.stringify(savedDataFromGame));
+  takeResultLocalStorage = localStorage.getItem("gameResult");
+  //make current result to be object;
+  currentResult = JSON.parse(takeResultLocalStorage);
+  console.log(currentResult.length);
 
-  uiElements.$gameResults.innerHTML += `<tr>
-                                                          <td>${result}</td>
-                                                          <td>${flips}</td>
-                                                          <td>${time}</td>
-                                                          <td>${matchCardsCounter}</td>
+  for (let i = 0; i < currentResult.length; i++) {
+    uiElements.$gameResults.innerHTML += `<tr>
+                                                          <td>${currentResult[i].result}</td>
+                                                          <td>${currentResult[i].flips}</td>
+                                                          <td>${currentResult[i].time}</td>
+                                                          <td>${currentResult[i].matchedCards}</td>
                                                         </tr>`;
+  }
 
   //show popup in 1 sec => to see the last flipped card face;
   setTimeout(() => {
