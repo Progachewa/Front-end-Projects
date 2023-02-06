@@ -18,6 +18,10 @@ let imgURL;
 let allGames = "";
 let takeResultLocalStorage;
 let currentResult;
+let lockCards = false;
+let allSavedGames = [];
+let index = 0;
+let newHTMLTable;
 
 let uiElements = {
   $containerCards: document.querySelector(".containerCards"),
@@ -38,7 +42,9 @@ let sysMsg = {
 };
 
 //get data from API;
+// TODO: init game
 (async function getData() {
+  //TODO: await otdelni funkcii
   await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
     .then((response) => response.json())
     .then((data) => {
@@ -48,7 +54,7 @@ let sysMsg = {
       document.body.innerHTML =
         "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
     });
-
+  //TODO: await otdelni funkcii
   await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
     .then((response) => response.json())
     .then((data) => {
@@ -89,6 +95,7 @@ function generateSlotsAndAttr() {
   }
   generateCardSlots();
   flipOnClick();
+  generateTable();
 }
 
 //setTimeout to wait for the API and then invoke the func, because I use the data from API;
@@ -104,8 +111,8 @@ function flipOnClick() {
       // make target = parent element (in this case parent = (".flipcard"))
       let clickedCard = event.currentTarget;
 
-      //if clickedCard is different from the first clicked card - add class;
-      if (clickedCard !== cardOne) {
+      //if clickedCard is different from the first clicked card - add class and unlock the card;
+      if (clickedCard !== cardOne && !lockCards) {
         clickedCard.classList.add("rotateOnClick");
 
         //if first clicked card = false; first clicked card will be the card user click;
@@ -114,7 +121,7 @@ function flipOnClick() {
         }
         //second clicked card = next clicked card;
         cardTwo = clickedCard;
-
+        lockCards = true;
         //select first clicked card img and next one clicked card img;
         let cardOneImg = cardOne.querySelector(".faceCard img").src;
         let cardTwoImg = cardTwo.querySelector(".faceCard img").src;
@@ -161,6 +168,8 @@ function matchCards(cardOneImg, cardTwoImg) {
     //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
     cardOne = cardTwo = "";
 
+    lockCards = false;
+
     //it these two clicked cards do not have same value, wait 2 seconds and remove class rotate;( after 2 second rotate and show clicked cards` backs);
   } else {
     setTimeout(() => {
@@ -169,6 +178,7 @@ function matchCards(cardOneImg, cardTwoImg) {
 
       //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
       cardOne = cardTwo = "";
+      lockCards = false;
     }, 1200);
   }
 }
@@ -224,20 +234,21 @@ function popupContent(time, flips, img) {
   });
 
   //save the result of game in local storage;
-  localStorage.setItem("gameResult", JSON.stringify(savedDataFromGame));
-  takeResultLocalStorage = localStorage.getItem("gameResult");
+  localStorage.setItem("gameResults", JSON.stringify(savedDataFromGame));
+  takeResultLocalStorage = localStorage.getItem("gameResults");
   //make current result to be object;
   currentResult = JSON.parse(takeResultLocalStorage);
   console.log(currentResult.length);
 
-  for (let i = 0; i < currentResult.length; i++) {
-    uiElements.$gameResults.innerHTML += `<tr>
-                                                          <td>${currentResult[i].result}</td>
-                                                          <td>${currentResult[i].flips}</td>
-                                                          <td>${currentResult[i].time}</td>
-                                                          <td>${currentResult[i].matchedCards}</td>
+  uiElements.$gameResults.innerHTML += `<tr>
+                                                          <td>${currentResult[index].result}</td>
+                                                          <td>${currentResult[index].flips}</td>
+                                                          <td>${currentResult[index].time}</td>
+                                                          <td>${currentResult[index].matchedCards}</td>
                                                         </tr>`;
-  }
+
+  //increment the index and take data from next result game;
+  index++;
 
   //show popup in 1 sec => to see the last flipped card face;
   setTimeout(() => {
@@ -254,6 +265,34 @@ function popupContent(time, flips, img) {
   document.querySelector(".close").onclick = () => {
     uiElements.$popupContainer.style.display = "none";
   };
+}
+
+function generateTable() {
+  takeResultLocalStorage = localStorage.getItem("gameResults");
+  //make current result to be object;
+  currentResult = JSON.parse(takeResultLocalStorage);
+  console.log(currentResult.length);
+
+  document.querySelector(".gameResults").innerHTML = "";
+  newHTMLTable = `<table class="gameResults">
+  <tr>
+      <th>Win/Lose</th>
+      <th>Flips</th>
+      <th>Remaining Time</th>
+      <th>Matched Cards</th>
+  </tr>
+  
+</table>`;
+
+  for (let i = 0; i < currentResult.length; i++) {
+    newHTMLTable += `<tr>
+  <td>${currentResult[i].result}</td>
+  <td>${currentResult[i].flips}</td>
+  <td>${currentResult[i].time}</td>
+  <td>${currentResult[i].matchedCards}</td>
+</tr>`;
+  }
+  document.querySelector(".gameResults").innerHTML += newHTMLTable;
 }
 
 //logic to take the most matched cards for minimal time;
@@ -281,7 +320,7 @@ function generateCardSlots() {
   for (let i = 0; i < slotsContainer.length; i++) {
     upgradeSlot = slotsContainer[i];
 
-    HTML = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
+    HTMLCards = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
       <div class="flipCard">
           <div class="backCard">
               <img src="images/cardback_158.png" alt="backCard"/>
@@ -291,9 +330,29 @@ function generateCardSlots() {
           </div>
       </div>`;
 
-    uiElements.$containerCards.innerHTML += HTML;
+    uiElements.$containerCards.innerHTML += HTMLCards;
   }
+  //generateTable(currentResult);
 }
+
+// function generateTable(currentResult) {
+//   uiElements.$gameResults.innerHTML = "";
+//   if (currentResult === undefined) {
+//     console.log(`it is undefined`);
+//     newTable = `
+//   <table class="gameResults">
+//             <tr>
+//                 <th>Win/Lose</th>
+//                 <th>Flips</th>
+//                 <th>Remaining Time</th>
+//                 <th>Matched Cards</th>
+//             </tr>
+//             <tr>${currentResult}</tr>
+//         </table>
+//   `;
+//   }
+//   uiElements.$gameResults.innerHTML += newTable;
+// }
 
 function resetBtn() {
   uiElements.$resetBtn.addEventListener("click", () => {
