@@ -3,24 +3,30 @@
   let deckId = "";
   let allSavedCards = [];
   let allFaceCards;
-  let slotsAttr;
+  let slots = 16;
   let cardOne;
   let cardTwo;
   let matchFlipCards;
   let flipCount = 0;
+  //todo: it does not work with const;
   let timeCount = 60;
   let timerFunction;
   let slotsContainer = [];
-  let upgradeSlot;
   let matchCardsCounter = 0;
   let maxPairCards = 8;
-  let savedDataFromGame = [];
+  let savedDataFromGame = JSON.parse(localStorage.getItem("gameResults")) || [];
   let imgURL;
   let takeResultLocalStorage;
   let currentResult;
   let lockCards = false;
   let index = 0;
   let newHTMLTable;
+  const imgURLGameOver = "images/gameover.png";
+  const imgURLWin = "images/win.png";
+  const animationDuration = 1200;
+  const showPopUp = 1000;
+  let currentMatchedCards = 0;
+  let heightScore;
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
@@ -38,10 +44,15 @@
     popup: document.querySelector(".popup"),
     popupWinLose: document.querySelector(".sysMsg"),
     popupImage: document.querySelector(".popupContent"),
+    resultGameOver: "Game Over",
+    resultWin: "Win",
   };
 
   //get data from API;
+  //todo: rename getData = initFunc;
   async function getData() {
+    //todo: fetch -> new function;
+    //todo: await handleRequestDeckId();
     await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
       .then((response) => response.json())
       .then((data) => {
@@ -51,6 +62,7 @@
         document.body.innerHTML =
           "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
       });
+    // //todo: await handleRequestCards();
     await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
       .then((response) => response.json())
       .then((data) => {
@@ -67,6 +79,7 @@
             return allSavedCards.push(cardFace.images.png);
           })
           .join("");
+        //if it does not work wit 3 await - call handleStartingGame() here;
       })
       .catch(() => {
         document.body.innerHTML =
@@ -77,38 +90,37 @@
   }
   getData();
 
+  //TODO: Async await!
   //setTimeout to wait for the API and then invoke the func, because I use the data from API;
-  setTimeout(generateSlotsAndAttr, 1000);
+  setTimeout(handleStartingGame, 1000);
 
-  //generate the new HTML with the slots and flips cards on;
-  function generateSlotsAndAttr() {
+  //if "x" is clicked, hide the popup;
+  function closePopup() {
+    document.querySelector(".close").onclick = () => {
+      uiElements.$popupContainer.style.display = "none";
+    };
+  }
+
+  //generate the number of card slots;
+  function handleStartingGame() {
     uiElements.$containerCards.innerHTML = "";
-
-    // set attributes row and col to each slot;
-    for (let row = 1; row <= 4; row++) {
-      for (let col = 1; col <= 4; col++) {
-        slotsAttr = {};
-        slotsAttr.row = row;
-        slotsAttr.col = col;
-        slotsContainer.push(slotsAttr);
-      }
+    for (let i = 0; i < slots; i++) {
+      slotsContainer.push(slots[i]);
     }
     generateCardSlots();
     flipOnClick();
     generateTable();
   }
 
-  //function to generate new 16 card Slots;
+  //function to generate the slots with backCard and faceCard(from API);
   function generateCardSlots() {
     for (let i = 0; i < slotsContainer.length; i++) {
-      upgradeSlot = slotsContainer[i];
-
-      HTMLCards = `<div class="cardSlot" data-col="${upgradeSlot.col}" data-row="${upgradeSlot.row}">
+      HTMLCards = `<div class="cardSlot" >
       <div class="flipCard">
           <div class="backCard">
               <img src="images/cardback_158.png" alt="backCard"/>
           </div>
-          <div class="faceCard" id="${i}">
+          <div class="faceCard">
             <img src="${allSavedCards[i]}"/>
           </div>
       </div>`;
@@ -181,14 +193,9 @@
         stopTimer();
 
         //show popup msg with win img and game statistic;
-        result = "Win";
-        imgURL = "images/win.png";
+        result = sysMsg.resultWin;
+        imgURL = imgURLWin;
         popupContent(timeCount, flipCount, imgURL);
-
-        //if "x" is clicked, hide the popup;
-        document.querySelector(".close").onclick = () => {
-          uiElements.$popupContainer.style.display = "none";
-        };
 
         // when popup msg is shown, disable cards to be clicked;
         uiElements.$containerCards.classList.add("disableClick");
@@ -211,13 +218,14 @@
         //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
         cardOne = cardTwo = "";
         lockCards = false;
-      }, 1200);
+      }, animationDuration);
     }
   }
 
   //popup - game statistic;
   function popupContent(time, flips, img) {
     //save data from popup;
+    console.log(savedDataFromGame);
     savedDataFromGame.push({
       result: `${result}`,
       flips: parseInt(`${flips}`),
@@ -227,42 +235,46 @@
 
     //save the result of game in local storage;
     localStorage.setItem("gameResults", JSON.stringify(savedDataFromGame));
-    takeResultLocalStorage = localStorage.getItem("gameResults");
-    //make current result to be object;
-    currentResult = JSON.parse(takeResultLocalStorage);
-    console.log(currentResult.length);
 
-    uiElements.$gameResults.innerHTML += `<tr>
-                                            <td>${currentResult[index].result}</td>
-                                            <td>${currentResult[index].flips}</td>
-                                            <td>${currentResult[index].time}</td>
-                                            <td>${currentResult[index].matchedCards}</td>
-                                          </tr>`;
-    //increment the index and take data from next result game;
-    index++;
+    generateNewTableRowGameResult();
 
     //show popup in 1 sec => to see the last flipped card face;
     setTimeout(() => {
       uiElements.$popupContainer.style.display = "block";
-    }, 1000);
+    }, showPopUp);
 
     sysMsg.popupWinLose.innerHTML = "";
     sysMsg.popupWinLose.innerHTML = `Time left: ${time}s | Flips: ${flips} <span class="close">&times;</span>`;
     sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
 
-    checkGameResults(savedDataFromGame);
+    popupCheckNewRecord(savedDataFromGame);
 
-    //if "x" is clicked, hide the popup;
-    document.querySelector(".close").onclick = () => {
-      uiElements.$popupContainer.style.display = "none";
-    };
+    closePopup();
   }
 
+  function generateNewTableRowGameResult() {
+    //get results from local storage;
+    takeResultLocalStorage = localStorage.getItem("gameResults");
+    //make current result to be object;
+    currentResult = JSON.parse(takeResultLocalStorage);
+
+    //add new table row with data from last game;
+    uiElements.$gameResults.innerHTML += `<tr>
+                      <td>${currentResult[currentResult.length - 1].result}</td>
+                      <td>${currentResult[currentResult.length - 1].flips}</td>
+                      <td>${currentResult[currentResult.length - 1].time}</td>
+                      <td>${
+                        currentResult[currentResult.length - 1].matchedCards
+                      }</td>
+                    </tr>`;
+  }
+
+  //generate new table with data from local storage;
   function generateTable() {
     takeResultLocalStorage = localStorage.getItem("gameResults");
     //make current result to be object;
     currentResult = JSON.parse(takeResultLocalStorage);
-    console.log(currentResult.length);
+    // console.log(currentResult.length);
 
     document.querySelector(".gameResults").innerHTML = "";
     newHTMLTable = `<table class="gameResults">
@@ -274,28 +286,26 @@
     </tr>
   </table>`;
 
-    console.log(currentResult);
-    for (let i = 0; i < currentResult.length; i++) {
-      newHTMLTable += `<tr>
+    if (currentResult?.length) {
+      for (let i = 0; i < currentResult.length; i++) {
+        newHTMLTable += `<tr>
                         <td>${currentResult[i].result}</td>
                         <td>${currentResult[i].flips}</td>
                         <td>${currentResult[i].time}</td>
                         <td>${currentResult[i].matchedCards}</td>
                       </tr>`;
+      }
     }
     document.querySelector(".gameResults").innerHTML += newHTMLTable;
   }
 
   //logic to take the most matched cards for minimal time;
-  function checkGameResults(gameResults) {
-    let currentMatchedCards = 0;
-    let heightScore;
-
+  function popupCheckNewRecord(gameResults) {
     gameResults.map((currentResult) => {
       let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
 
-      //check if it`s first game - automatic new record and check numbers of matched cards;
-      if (gameResults.length === 1 || mostMatchedCards) {
+      //check numbers of matched cards;
+      if (mostMatchedCards) {
         currentMatchedCards = currentResult.matchedCards;
         heightScore = `<br/>
       <span style="font-size: 20px;">New record</span>`;
@@ -311,11 +321,12 @@
     timerFunction = setInterval(() => {
       timeCount--;
       uiElements.$timeCounter.innerHTML = timeCount;
+
       // if time is up and user does not collect all cards pairs = pop up msg(gameover);
       if (timeCount === 0 && matchCardsCounter < maxPairCards) {
         //show popup msg with gameover img and game statistic;
-        imgURL = "images/gameover.png";
-        result = "Game Over";
+        imgURL = imgURLGameOver;
+        result = sysMsg.resultGameOver;
         popupContent(timeCount, flipCount, imgURL);
 
         // when popup msg is shown, disable cards to be clicked;
