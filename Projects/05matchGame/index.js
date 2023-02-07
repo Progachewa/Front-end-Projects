@@ -133,7 +133,6 @@
 
   //function to add and remove class on click;
   function flipOnClick() {
-    console.log(allSavedCards);
     let flipCards = document.querySelectorAll(".flipCard");
     for (let i = 0; i < flipCards.length; i++) {
       let selectedCard = flipCards[i];
@@ -227,7 +226,6 @@
   //popup - game statistic;
   function popupContent(time, flips, img) {
     //save data from popup;
-    console.log(savedDataFromGame);
     savedDataFromGame.push({
       result: `${result}`,
       flips: parseInt(`${flips}`),
@@ -280,7 +278,6 @@
     takeResultLocalStorage = localStorage.getItem("gameResults");
     //make current result to be object;
     currentResult = JSON.parse(takeResultLocalStorage);
-    // console.log(currentResult.length);
 
     document.querySelector(".gameResults").innerHTML = "";
     newHTMLTable = `<table class="gameResults">
