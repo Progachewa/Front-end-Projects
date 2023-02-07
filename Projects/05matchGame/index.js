@@ -1,4 +1,4 @@
-(function initFunction() {
+(async function initFunc() {
   let savedCards = [];
   let deckId = "";
   let allSavedCards = [];
@@ -19,7 +19,6 @@
   let takeResultLocalStorage;
   let currentResult;
   let lockCards = false;
-  let index = 0;
   let newHTMLTable;
   const imgURLGameOver = "images/gameover.png";
   const imgURLWin = "images/win.png";
@@ -48,12 +47,15 @@
     resultWin: "Win",
   };
 
-  //get data from API;
-  //todo: rename getData = initFunc;
-  async function getData() {
-    //todo: fetch -> new function;
-    //todo: await handleRequestDeckId();
-    await fetch(`https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`)
+  //wait response from API;
+  await handleRequestDeckId();
+  await handleRequestCards();
+
+  //take data from API;
+  async function handleRequestDeckId() {
+    return fetch(
+      `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`
+    )
       .then((response) => response.json())
       .then((data) => {
         deckId = data.deck_id;
@@ -62,8 +64,10 @@
         document.body.innerHTML =
           "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
       });
-    // //todo: await handleRequestCards();
-    await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
+  }
+
+  async function handleRequestCards() {
+    fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
       .then((response) => response.json())
       .then((data) => {
         savedCards.push(data.cards);
@@ -76,23 +80,21 @@
         allFaceCards = mergeSavedCards.concat(cloneSavedCards);
         allFaceCards
           .map((cardFace) => {
-            return allSavedCards.push(cardFace.images.png);
+            allSavedCards.push(cardFace.images.png);
+
+            //randomize the cards from API;
+            return allSavedCards.sort(() => Math.random() - 0.5);
           })
           .join("");
-        //if it does not work wit 3 await - call handleStartingGame() here;
+
+        //call it here, because I wait for data from API!
+        handleStartingGame();
       })
       .catch(() => {
         document.body.innerHTML =
           "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
       });
-    //randomize the cards from API;
-    allSavedCards.sort(() => Math.random() - 0.5);
   }
-  getData();
-
-  //TODO: Async await!
-  //setTimeout to wait for the API and then invoke the func, because I use the data from API;
-  setTimeout(handleStartingGame, 1000);
 
   //if "x" is clicked, hide the popup;
   function closePopup() {
@@ -116,14 +118,14 @@
   function generateCardSlots() {
     for (let i = 0; i < slotsContainer.length; i++) {
       HTMLCards = `<div class="cardSlot" >
-      <div class="flipCard">
-          <div class="backCard">
-              <img src="images/cardback_158.png" alt="backCard"/>
-          </div>
-          <div class="faceCard">
-            <img src="${allSavedCards[i]}"/>
-          </div>
-      </div>`;
+        <div class="flipCard">
+            <div class="backCard">
+                <img src="images/cardback_158.png" alt="backCard"/>
+            </div>
+            <div class="faceCard">
+              <img src="${allSavedCards[i]}"/>
+            </div>
+        </div>`;
 
       uiElements.$containerCards.innerHTML += HTMLCards;
     }
@@ -260,13 +262,17 @@
 
     //add new table row with data from last game;
     uiElements.$gameResults.innerHTML += `<tr>
-                      <td>${currentResult[currentResult.length - 1].result}</td>
-                      <td>${currentResult[currentResult.length - 1].flips}</td>
-                      <td>${currentResult[currentResult.length - 1].time}</td>
-                      <td>${
-                        currentResult[currentResult.length - 1].matchedCards
-                      }</td>
-                    </tr>`;
+                        <td>${
+                          currentResult[currentResult.length - 1].result
+                        }</td>
+                        <td>${
+                          currentResult[currentResult.length - 1].flips
+                        }</td>
+                        <td>${currentResult[currentResult.length - 1].time}</td>
+                        <td>${
+                          currentResult[currentResult.length - 1].matchedCards
+                        }</td>
+                      </tr>`;
   }
 
   //generate new table with data from local storage;
@@ -278,22 +284,22 @@
 
     document.querySelector(".gameResults").innerHTML = "";
     newHTMLTable = `<table class="gameResults">
-    <tr>
-        <th>Win/Lose</th>
-        <th>Flips</th>
-        <th>Remaining Time</th>
-        <th>Matched Cards</th>
-    </tr>
-  </table>`;
+      <tr>
+          <th>Win/Lose</th>
+          <th>Flips</th>
+          <th>Remaining Time</th>
+          <th>Matched Cards</th>
+      </tr>
+    </table>`;
 
     if (currentResult?.length) {
       for (let i = 0; i < currentResult.length; i++) {
         newHTMLTable += `<tr>
-                        <td>${currentResult[i].result}</td>
-                        <td>${currentResult[i].flips}</td>
-                        <td>${currentResult[i].time}</td>
-                        <td>${currentResult[i].matchedCards}</td>
-                      </tr>`;
+                          <td>${currentResult[i].result}</td>
+                          <td>${currentResult[i].flips}</td>
+                          <td>${currentResult[i].time}</td>
+                          <td>${currentResult[i].matchedCards}</td>
+                        </tr>`;
       }
     }
     document.querySelector(".gameResults").innerHTML += newHTMLTable;
@@ -308,7 +314,7 @@
       if (mostMatchedCards) {
         currentMatchedCards = currentResult.matchedCards;
         heightScore = `<br/>
-      <span style="font-size: 20px;">New record</span>`;
+        <span style="font-size: 20px;">New record</span>`;
       } else {
         heightScore = "";
       }
