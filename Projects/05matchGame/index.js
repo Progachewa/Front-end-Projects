@@ -8,24 +8,22 @@
   let cardTwo;
   let matchFlipCards;
   let flipCount = 0;
-  //todo: it does not work with const;
   let timeCount = 60;
   let timerFunction;
-  let slotsContainer = [];
   let matchCardsCounter = 0;
   let maxPairCards = 8;
   let savedDataFromGame = JSON.parse(localStorage.getItem("gameResults")) || [];
-  let imgURL;
   let takeResultLocalStorage;
   let currentResult;
   let lockCards = false;
   let newHTMLTable;
   const imgURLGameOver = "images/gameover.png";
   const imgURLWin = "images/win.png";
-  const animationDuration = 1200;
+  const flipAnimationDuration = 1200;
   const showPopUp = 1000;
   let currentMatchedCards = 0;
-  let heightScore;
+  let heightScore = "";
+  let result = "";
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
@@ -37,21 +35,26 @@
     $timeCounter: document.querySelector(".timeCounter"),
     $resetBtn: document.querySelector(".resetBtn"),
     $gameResults: document.querySelector(".gameResults"),
+    $secondCounter: document.querySelector(".counterSeconds"),
+    $numbersOfFlips: document.querySelector(".counterFlips"),
+    $heightScore: document.querySelector(".heightScoreMsg"),
   };
 
   let sysMsg = {
     popup: document.querySelector(".popup"),
-    popupWinLose: document.querySelector(".sysMsg"),
+    popupWinLoseNotResponse: document.querySelector(".sysMsg"),
     popupImage: document.querySelector(".popupContent"),
     resultGameOver: "Game Over",
     resultWin: "Win",
+    notResponseAPI: "Error: Site not found",
   };
 
-  //wait response from API;
+  //init game and start first game;
   await handleRequestDeckId();
   await handleRequestCards();
+  await handleStartingGame();
 
-  //take data from API;
+  //get deckId from API;
   async function handleRequestDeckId() {
     return fetch(
       `https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1`
@@ -61,22 +64,21 @@
         deckId = data.deck_id;
       })
       .catch(() => {
-        document.body.innerHTML =
-          "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
+        notResponseApi();
       });
   }
 
+  //get cards from API;
   async function handleRequestCards() {
-    fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
+    return fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=8`)
       .then((response) => response.json())
       .then((data) => {
         savedCards.push(data.cards);
         let mergeSavedCards = savedCards.flat(1);
 
-        //copy the 8 cards from API;
+        //copy the 8 cards from API - make an array with 16 cards - 8 pairs of cards;
         let cloneSavedCards = [...mergeSavedCards];
 
-        //make an array with 16 cards - 8 pairs of cards;
         allFaceCards = mergeSavedCards.concat(cloneSavedCards);
         allFaceCards
           .map((cardFace) => {
@@ -86,14 +88,18 @@
             return allSavedCards.sort(() => Math.random() - 0.5);
           })
           .join("");
-
-        //call it here, because I wait for data from API!
-        handleStartingGame();
       })
       .catch(() => {
-        document.body.innerHTML =
-          "<div style='text-align: center; margin: 25%; font-size: 40px;'>Error: Site not found</div>";
+        notResponseApi();
       });
+  }
+
+  //show popup with sysMsg - not response from API;
+  function notResponseApi() {
+    document.querySelector(".pageGame").innerHTML = "";
+    uiElements.$popupContainer.style.display = "block";
+    sysMsg.popupWinLoseNotResponse.innerHTML = sysMsg.notResponseAPI;
+    sysMsg.popupWinLoseNotResponse.classList.add("centerSysMsg");
   }
 
   //if "x" is clicked, hide the popup;
@@ -104,19 +110,18 @@
   }
 
   //generate the number of card slots;
-  function handleStartingGame() {
+  async function handleStartingGame() {
     uiElements.$containerCards.innerHTML = "";
-    for (let i = 0; i < slots; i++) {
-      slotsContainer.push(slots[i]);
-    }
+
     generateCardSlots();
     flipOnClick();
     generateTable();
+    uiElements.$resetBtn.addEventListener("click", resetBtn);
   }
 
   //function to generate the slots with backCard and faceCard(from API);
   function generateCardSlots() {
-    for (let i = 0; i < slotsContainer.length; i++) {
+    for (let i = 0; i < slots; i++) {
       HTMLCards = `<div class="cardSlot" >
         <div class="flipCard">
             <div class="backCard">
@@ -135,8 +140,6 @@
   function flipOnClick() {
     let flipCards = document.querySelectorAll(".flipCard");
     for (let i = 0; i < flipCards.length; i++) {
-      let selectedCard = flipCards[i];
-
       matchFlipCards = function (event) {
         // make target = parent element (in this case parent = (".flipcard"))
         let clickedCard = event.currentTarget;
@@ -159,7 +162,8 @@
           matchCards(cardOneImg, cardTwoImg);
         }
       };
-      selectedCard.addEventListener("click", matchFlipCards);
+      //on eventedCard -eventListener;
+      flipCards[i].addEventListener("click", matchFlipCards);
     }
     flipCounter();
   }
@@ -171,8 +175,8 @@
     uiElements.$backCard = document.querySelectorAll(".backCard");
 
     for (let i = 0; i < uiElements.$backCard.length; i++) {
-      let upgradeBackCard = uiElements.$backCard[i];
-      upgradeBackCard.onclick = () => {
+      let $upgradeBackCard = uiElements.$backCard[i];
+      $upgradeBackCard.onclick = () => {
         flipCount++;
         uiElements.$flipCounter.innerHTML = flipCount;
       };
@@ -188,15 +192,12 @@
 
       //if user flips all cards and have remaininng time, show pop up msg with time and flips and image win;
       if (matchCardsCounter === maxPairCards && timeCount > 0) {
-        uiElements.$timeCounter.innerHTML = "";
-        uiElements.$timeCounter.innerHTML += timeCount;
+        uiElements.$secondCounter.innerHTML = timeCount;
 
         stopTimer();
 
         //show popup msg with win img and game statistic;
-        result = sysMsg.resultWin;
-        imgURL = imgURLWin;
-        popupContent(timeCount, flipCount, imgURL);
+        popupContent(timeCount, flipCount, imgURLWin, sysMsg.resultWin);
 
         // when popup msg is shown, disable cards to be clicked;
         uiElements.$containerCards.classList.add("disableClick");
@@ -219,12 +220,12 @@
         //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
         cardOne = cardTwo = "";
         lockCards = false;
-      }, animationDuration);
+      }, flipAnimationDuration);
     }
   }
 
   //popup - game statistic;
-  function popupContent(time, flips, img) {
+  function popupContent(time, flips, img, result) {
     //save data from popup;
     savedDataFromGame.push({
       result: `${result}`,
@@ -243,8 +244,9 @@
       uiElements.$popupContainer.style.display = "block";
     }, showPopUp);
 
-    sysMsg.popupWinLose.innerHTML = "";
-    sysMsg.popupWinLose.innerHTML = `Time left: ${time}s | Flips: ${flips} <span class="close">&times;</span>`;
+    uiElements.$secondCounter.innerHTML = time;
+    uiElements.$numbersOfFlips.innerHTML = flips;
+
     sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
 
     popupCheckNewRecord(savedDataFromGame);
@@ -306,17 +308,16 @@
   function popupCheckNewRecord(gameResults) {
     gameResults.map((currentResult) => {
       let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
+      heightScore = "";
+      uiElements.$heightScore.style.display = "none";
 
       //check numbers of matched cards;
       if (mostMatchedCards) {
         currentMatchedCards = currentResult.matchedCards;
-        heightScore = `<br/>
-        <span style="font-size: 20px;">New record</span>`;
-      } else {
-        heightScore = "";
+        uiElements.$heightScore.style.display = "block";
       }
     });
-    sysMsg.popupWinLose.innerHTML += `${heightScore}`;
+    //sysMsg.popupWinLoseNotResponse.innerHTML += `${heightScore}`;
   }
 
   //function to show the popup msg when 1 min is gone;
@@ -328,9 +329,13 @@
       // if time is up and user does not collect all cards pairs = pop up msg(gameover);
       if (timeCount === 0 && matchCardsCounter < maxPairCards) {
         //show popup msg with gameover img and game statistic;
-        imgURL = imgURLGameOver;
-        result = sysMsg.resultGameOver;
-        popupContent(timeCount, flipCount, imgURL);
+
+        popupContent(
+          timeCount,
+          flipCount,
+          imgURLGameOver,
+          sysMsg.resultGameOver
+        );
 
         // when popup msg is shown, disable cards to be clicked;
         uiElements.$containerCards.classList.add("disableClick");
@@ -346,36 +351,33 @@
   }
 
   function resetBtn() {
-    uiElements.$resetBtn.addEventListener("click", () => {
-      // stop the timer
-      stopTimer();
-      // make timer starts again;
-      timeCount = 60;
-      uiElements.$timeCounter.innerHTML = timeCount;
-      startTimer();
+    // stop the timer
+    stopTimer();
+    // make timer starts again;
+    timeCount = 60;
+    uiElements.$timeCounter.innerHTML = timeCount;
+    startTimer();
 
-      //make flips start again;
-      uiElements.$flipCounter.innerHTML = 0;
-      flipCounter();
+    //make flips start again;
+    uiElements.$flipCounter.innerHTML = 0;
+    flipCounter();
 
-      // allow cards to be clicked again, when reset is clicked;
-      uiElements.$containerCards.classList.remove("disableClick");
+    // allow cards to be clicked again, when reset is clicked;
+    uiElements.$containerCards.classList.remove("disableClick");
 
-      // hide the popup msg;
-      uiElements.$popupContainer.style.display = "none";
+    // hide the popup msg;
+    uiElements.$popupContainer.style.display = "none";
 
-      //delete the old one HTML;
-      uiElements.$containerCards.innerHTML = "";
+    //delete the old one HTML;
+    uiElements.$containerCards.innerHTML = "";
 
-      //shuffle the cards again and create new HTML with new 16 card slots;
-      allSavedCards.sort(() => Math.random() - 0.5);
-      generateCardSlots();
+    //shuffle the cards again and create new HTML with new 16 card slots;
+    allSavedCards.sort(() => Math.random() - 0.5);
+    generateCardSlots();
 
-      //clear the match counter;
-      matchCardsCounter = 0;
+    //clear the match counter;
+    matchCardsCounter = 0;
 
-      flipOnClick();
-    });
+    flipOnClick();
   }
-  resetBtn();
 })();
