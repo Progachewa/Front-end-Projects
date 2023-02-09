@@ -257,7 +257,7 @@
 
       sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
 
-      popupCheckNewRecord(savedDataFromGame);
+      popupCheckNewRecord(savedDataFromGame, img);
 
       closePopup();
     }
@@ -313,14 +313,21 @@
     }
 
     //logic to take the most matched cards for minimal time;
-    function popupCheckNewRecord(gameResults) {
+    function popupCheckNewRecord(gameResults, img) {
       gameResults.map((currentResult) => {
         let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
+        let maxTime = currentTime < currentResult.time;
         uiElements.$heightScore.style.display = "none";
+        sysMsg.popupImage.style.backgroundImage = `url('${img}')`;
 
         //check numbers of matched cards;
         if (mostMatchedCards) {
           currentMatchedCards = currentResult.matchedCards;
+          uiElements.$heightScore.style.display = "block";
+          sysMsg.popupImage.style.backgroundImage = `url('${imgURLNewRecord}')`;
+        } //check if all cards are flipped and if remaining time is more;
+        else if (currentMatchedCards === maxPairCards && maxTime) {
+          currentTime = currentResult.time;
           uiElements.$heightScore.style.display = "block";
           sysMsg.popupImage.style.backgroundImage = `url('${imgURLNewRecord}')`;
         }
