@@ -174,3 +174,6 @@ table, th, td {
     font-size: 20px;
 }
     
+.disableRepeatClick {
+    pointer-events: none;
+}
