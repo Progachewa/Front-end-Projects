@@ -24,10 +24,10 @@
   const imgURLWin = "images/win.png";
   const flipAnimationDuration = 1200;
   const showPopUp = 1000;
+  const imgURLNewRecord = "images/newRecord.jpg";
   let currentMatchedCards = 0;
   let result = "";
   let currentTime = 0;
-  const imgURLNewRecord = "images/newRecord.jpg";
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
@@ -317,16 +317,10 @@
       gameResults.map((currentResult) => {
         let mostMatchedCards = currentMatchedCards < currentResult.matchedCards;
         uiElements.$heightScore.style.display = "none";
-        let maxTime = currentTime < currentResult.time;
 
         //check numbers of matched cards;
         if (mostMatchedCards) {
           currentMatchedCards = currentResult.matchedCards;
-          uiElements.$heightScore.style.display = "block";
-          sysMsg.popupImage.style.backgroundImage = `url('${imgURLNewRecord}')`;
-        } // check if all cards are flipped and if remaining time is more;
-        else if (currentMatchedCards === maxPairCards && maxTime) {
-          currentTime = currentResult.time;
           uiElements.$heightScore.style.display = "block";
           sysMsg.popupImage.style.backgroundImage = `url('${imgURLNewRecord}')`;
         }
