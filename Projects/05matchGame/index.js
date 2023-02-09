@@ -1,7 +1,4 @@
 (async function initFunc() {
-  let isNotMobile = window.matchMedia(
-    "only screen and (min-width: 700px)"
-  ).matches;
   let savedCards = [];
   let deckId = "";
   let allSavedCards = [];
@@ -53,8 +50,15 @@
     notResponseAPI: "Error: Site not found",
   };
 
-  //check the screen size - the game starts only for screens 700px+;
-  if (isNotMobile) {
+  //check screen - the game works only 700px+;
+  function detectMobile() {
+    let isMobile = window.matchMedia(
+      "only screen and (min-width: 700px)"
+    ).matches;
+    return isMobile;
+  }
+
+  if (detectMobile()) {
     //init game and start first game;
     await handleRequestDeckId();
     await handleRequestCards();
@@ -409,3 +413,14 @@
     document.querySelector(".sysMsgNotMobile").style.display = "block";
   }
 })();
+
+// function detectMob() {
+//   let isMobile = window.matchMedia(
+//     "only screen and (min-width: 700px)"
+//   ).matches;
+//   return isMobile;
+// }
+
+// if (detectMob()) {
+//   console.log(`test`);
+// }
