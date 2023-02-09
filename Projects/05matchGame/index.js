@@ -193,8 +193,17 @@
 
     //if two cards img matched;
     function matchCards(cardOneImg, cardTwoImg) {
+      let cardOneContainsClass = cardOne.classList.contains("rotateOnClick");
+      let cardTwoContainsClass = cardTwo.classList.contains("rotateOnClick");
+
       //it these two clicked cards have same value, remove function on click and show clicked cards` faces; do not rotate;
       if (cardOneImg === cardTwoImg) {
+        //if cards are same - avoid comparing them again with other cards!
+        if (cardOneContainsClass && cardTwoContainsClass) {
+          cardOne.classList.add("disableRepeatClick");
+          cardTwo.classList.add("disableRepeatClick");
+        }
+
         //increment the match counter if two clicked cards are the same;
         matchCardsCounter++;
 
