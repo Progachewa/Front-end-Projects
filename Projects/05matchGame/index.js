@@ -176,10 +176,10 @@
             cardTwo = clickedCard;
             lockCards = true;
             //select first clicked card img and next one clicked card img;
-            let cardOneImg = cardOne.querySelector(".faceCard img").src;
-            let cardTwoImg = cardTwo.querySelector(".faceCard img").src;
+            let firstFace = cardOne.querySelector(".faceCard img").src;
+            let secondFace = cardTwo.querySelector(".faceCard img").src;
             //add func to selected 2 clicked;
-            matchCards(cardOneImg, cardTwoImg);
+            matchCards(firstFace, secondFace);
           }
         };
         //on eventedCard -eventListener;
@@ -204,7 +204,7 @@
     }
 
     //if two cards img matched;
-    function matchCards(cardOneImg, cardTwoImg) {
+    function matchCards(firstFace, secondFace) {
       let cardOneContainsClass = cardOne.classList.contains(
         cssClass.rotateOnClick
       );
@@ -213,7 +213,7 @@
       );
 
       //it these two clicked cards have same value, remove function on click and show clicked cards` faces; do not rotate;
-      if (cardOneImg === cardTwoImg) {
+      if (firstFace === secondFace) {
         //if cards are same - avoid comparing them again with other cards!
         if (cardOneContainsClass && cardTwoContainsClass) {
           cardOne.classList.add(cssClass.disableRepeatClick);
