@@ -158,8 +158,8 @@
 
     //function to add and remove class on click;
     function flipOnClick() {
-      let flipCards = document.querySelectorAll(".flipCard");
-      for (let i = 0; i < flipCards.length; i++) {
+      let cards = document.querySelectorAll(".flipCard");
+      for (let i = 0; i < cards.length; i++) {
         matchFlipCards = function (event) {
           // make target = parent element (in this case parent = (".flipcard"))
           let clickedCard = event.currentTarget;
@@ -183,7 +183,7 @@
           }
         };
         //on eventedCard -eventListener;
-        flipCards[i].addEventListener("click", matchFlipCards);
+        cards[i].addEventListener("click", matchFlipCards);
       }
       flipCounter();
     }
