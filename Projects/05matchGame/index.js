@@ -25,6 +25,7 @@
   let currentMatchedCards = 0;
   let result = "";
   let currentTime = 0;
+  let some = false;
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
@@ -50,15 +51,22 @@
     notResponseAPI: "Error: Site not found",
   };
 
+  const cssClass = {
+    centerSysMsg: "centerSysMsg",
+    rotateOnClick: "rotateOnClick",
+    disableRepeatClick: "disableRepeatClick",
+    disableClick: "disableClick",
+  };
+
   //check screen - the game works only 700px+;
-  function detectMobile() {
+  function isMobile() {
     let isMobile = window.matchMedia(
       "only screen and (min-width: 700px)"
     ).matches;
     return isMobile;
   }
 
-  if (detectMobile()) {
+  if (isMobile()) {
     //init game and start first game;
     await handleRequestDeckId();
     await handleRequestCards();
@@ -111,7 +119,7 @@
       document.querySelector(".pageGame").innerHTML = "";
       uiElements.$popupContainer.style.display = "block";
       sysMsg.popupWinLoseNotResponse.innerHTML = sysMsg.notResponseAPI;
-      sysMsg.popupWinLoseNotResponse.classList.add("centerSysMsg");
+      sysMsg.popupWinLoseNotResponse.classList.add(cssClass.centerSysMsg);
     }
 
     //if "x" is clicked, hide the popup;
@@ -158,7 +166,7 @@
 
           //if clickedCard is different from the first clicked card - add class and unlock the card;
           if (clickedCard !== cardOne && !lockCards) {
-            clickedCard.classList.add("rotateOnClick");
+            clickedCard.classList.add(cssClass.rotateOnClick);
 
             //if first clicked card = false; first clicked card will be the card user click;
             if (!cardOne) {
@@ -197,15 +205,19 @@
 
     //if two cards img matched;
     function matchCards(cardOneImg, cardTwoImg) {
-      let cardOneContainsClass = cardOne.classList.contains("rotateOnClick");
-      let cardTwoContainsClass = cardTwo.classList.contains("rotateOnClick");
+      let cardOneContainsClass = cardOne.classList.contains(
+        cssClass.rotateOnClick
+      );
+      let cardTwoContainsClass = cardTwo.classList.contains(
+        cssClass.rotateOnClick
+      );
 
       //it these two clicked cards have same value, remove function on click and show clicked cards` faces; do not rotate;
       if (cardOneImg === cardTwoImg) {
         //if cards are same - avoid comparing them again with other cards!
         if (cardOneContainsClass && cardTwoContainsClass) {
-          cardOne.classList.add("disableRepeatClick");
-          cardTwo.classList.add("disableRepeatClick");
+          cardOne.classList.add(cssClass.disableRepeatClick);
+          cardTwo.classList.add(cssClass.disableRepeatClick);
         }
 
         //increment the match counter if two clicked cards are the same;
@@ -221,7 +233,7 @@
           popupContent(timeCount, flipCount, imgURLWin, sysMsg.resultWin);
 
           // when popup msg is shown, disable cards to be clicked;
-          uiElements.$containerCards.classList.add("disableClick");
+          uiElements.$containerCards.classList.add(cssClass.disableClick);
         }
 
         cardOne.removeEventListener("click", matchFlipCards);
@@ -235,8 +247,8 @@
         //it these two clicked cards do not have same value, wait 2 seconds and remove class rotate;( after 2 second rotate and show clicked cards` backs);
       } else {
         setTimeout(() => {
-          cardOne.classList.remove("rotateOnClick");
-          cardTwo.classList.remove("rotateOnClick");
+          cardOne.classList.remove(cssClass.rotateOnClick);
+          cardTwo.classList.remove(cssClass.rotateOnClick);
 
           //make them = "" so to take next two clicked cards and compare them, not to compare with the previous one;
           cardOne = cardTwo = "";
@@ -364,7 +376,7 @@
           );
 
           // when popup msg is shown, disable cards to be clicked;
-          uiElements.$containerCards.classList.add("disableClick");
+          uiElements.$containerCards.classList.add(cssClass.disableClick);
 
           stopTimer();
         }
@@ -389,7 +401,7 @@
       flipCounter();
 
       // allow cards to be clicked again, when reset is clicked;
-      uiElements.$containerCards.classList.remove("disableClick");
+      uiElements.$containerCards.classList.remove(cssClass.disableClick);
 
       // hide the popup msg;
       uiElements.$popupContainer.style.display = "none";
@@ -414,13 +426,17 @@
   }
 })();
 
-// function detectMob() {
-//   let isMobile = window.matchMedia(
-//     "only screen and (min-width: 700px)"
-//   ).matches;
-//   return isMobile;
+// function isMobile() {
+//   if (window.innerWidth >= 700) {
+//     console.log(window.innerWidth);
+//   }
+// }
+// window.onresize = isMobile;
+
+// function reportWindowSize() {
+//   window.innerHeight;
+//   window.innerWidth;
+//   console.log(window.innerHeight, window.innerWidth);
 // }
 
-// if (detectMob()) {
-//   console.log(`test`);
-// }
+// window.onresize = reportWindowSize;
