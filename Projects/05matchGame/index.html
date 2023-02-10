@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match game</title>
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+    <div class="sysMsgNotMobile">Not supported by mobile browser</div>
+    <div class="popup">
+        <div class="containerPopup">
+            <!-- Dynamic generated content JS -->
+            <div class="sysMsg">
+                Time left: <span class="counterSeconds">0</span>s |
+                Flips: <span class="counterFlips">0</span>
+                <span class="close">&times;</span>
+                <br/>
+                <span class="heightScoreMsg">New record</span>
+            </div>
+            <span class="popupContent"></span>
+        </div>
+    </div>
+    <section class="pageGame">
+    <div class="mainContainerGame">
+        <!-- Dynamic generated content JS -->
+            <div class="containerCards">
+                <div class="cardSlot" data-col="col1" data-row="row1">
+                    <div class="flipCard">
+                        <div class="backCard">
+                            <img src="images/cardback_158.png" alt="backCard"/>
+                        </div>
+                        <div class="faceCard"></div>
+                    </div>
+                </div>
+                <div class="cardSlot" data-col="col2" data-row="row1">
+                    <div class="flipCard">
+                        <div class="backCard">
+                            <img src="images/cardback_158.png" alt="backCard"/>
+                        </div>
+                        <div class="faceCard"></div>
+                    </div>
+                </div>
+                <div class="cardSlot" data-col="col3" data-row="row1">
+                    <div class="flipCard">
+                        <div class="backCard">
+                            <img src="images/cardback_158.png" alt="backCard"/>
+                        </div>
+                        <div class="faceCard"></div>
+                    </div>
+                </div>
+                <div class="cardSlot" data-col="col4" data-row="row1">
+                    <div class="flipCard">
+                        <div class="backCard">
+                            <img src="images/cardback_158.png" alt="backCard"/>
+                        </div>
+                        <div class="faceCard"></div>
+                    </div>
+                </div>
+        </div>
+            <div class="containerInfoForUser">
+                <div class="timer">Timer: <span class="timeCounter">60</span>s</div>
+                <div>|</div>
+                <div class="flips">Flips: <span class="flipCounter">0</span></div>
+                <div>|</div>
+                <div class="reset">
+                    <button class="resetBtn">Reset</button>
+                </div>
+            </div>
+    </div>
+    <section class="tableInforForUser">
+        <!-- Dynamic generated content JS -->
+        <table class="gameResults">
+            <tr>
+                <th>Win/Lose</th>
+                <th>Flips</th>
+                <th>Remaining Time</th>
+                <th>Matched Cards</th>
+            </tr>
+        </table>
+    </section>
+</section>
+    <script src="index.js"></script>
+</body>
+</html>
