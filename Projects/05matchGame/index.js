@@ -25,7 +25,6 @@
   let currentMatchedCards = 0;
   let result = "";
   let currentTime = 0;
-  let some = false;
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
