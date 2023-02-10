@@ -26,6 +26,7 @@
   let result = "";
   let currentTime = 0;
   let HTMLCards = "";
+  let loopAllCards;
 
   let uiElements = {
     $containerCards: document.querySelector(".containerCards"),
@@ -138,11 +139,15 @@
       generateTable();
       uiElements.$resetBtn.addEventListener("click", resetBtn);
 
-      let cards = document.querySelectorAll(".flipCard");
-      for (let i = 0; i < cards.length; i++) {
-        //on eventedCard -eventListener;
-        cards[i].addEventListener("click", matchFlipCards);
-      }
+      loopAllCards = () => {
+        let cards = document.querySelectorAll(".flipCard");
+        for (let i = 0; i < cards.length; i++) {
+          //on eventedCard -eventListener;
+          cards[i].addEventListener("click", matchFlipCards);
+        }
+        flipCounter();
+      };
+      loopAllCards();
     }
 
     //function to generate the slots with backCard and faceCard(from API);
@@ -186,7 +191,6 @@
           matchCards(firstFace, secondFace);
         }
       };
-      flipCounter();
     }
 
     //increment ui element on every click when flip a card;
@@ -417,7 +421,7 @@
       //clear the match counter;
       matchCardsCounter = 0;
 
-      flipOnClick();
+      loopAllCards();
     }
 
     //if screen size is smaller than 700px - the game does not start;
