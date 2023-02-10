@@ -137,6 +137,12 @@
       flipOnClick();
       generateTable();
       uiElements.$resetBtn.addEventListener("click", resetBtn);
+
+      let cards = document.querySelectorAll(".flipCard");
+      for (let i = 0; i < cards.length; i++) {
+        //on eventedCard -eventListener;
+        cards[i].addEventListener("click", matchFlipCards);
+      }
     }
 
     //function to generate the slots with backCard and faceCard(from API);
@@ -158,33 +164,28 @@
 
     //function to add and remove class on click;
     function flipOnClick() {
-      let cards = document.querySelectorAll(".flipCard");
-      for (let i = 0; i < cards.length; i++) {
-        matchFlipCards = function (event) {
-          // make target = parent element (in this case parent = (".flipcard"))
-          let clickedCard = event.currentTarget;
+      matchFlipCards = function (event) {
+        // make target = parent element (in this case parent = (".flipcard"))
+        let clickedCard = event.currentTarget;
 
-          //if clickedCard is different from the first clicked card - add class and unlock the card;
-          if (clickedCard !== cardOne && !lockCards) {
-            clickedCard.classList.add(cssClass.rotateOnClick);
+        //if clickedCard is different from the first clicked card - add class and unlock the card;
+        if (clickedCard !== cardOne && !lockCards) {
+          clickedCard.classList.add(cssClass.rotateOnClick);
 
-            //if first clicked card = false; first clicked card will be the card user click;
-            if (!cardOne) {
-              return (cardOne = clickedCard);
-            }
-            //second clicked card = next clicked card;
-            cardTwo = clickedCard;
-            lockCards = true;
-            //select first clicked card img and next one clicked card img;
-            let firstFace = cardOne.querySelector(".faceCard img").src;
-            let secondFace = cardTwo.querySelector(".faceCard img").src;
-            //add func to selected 2 clicked;
-            matchCards(firstFace, secondFace);
+          //if first clicked card = false; first clicked card will be the card user click;
+          if (!cardOne) {
+            return (cardOne = clickedCard);
           }
-        };
-        //on eventedCard -eventListener;
-        cards[i].addEventListener("click", matchFlipCards);
-      }
+          //second clicked card = next clicked card;
+          cardTwo = clickedCard;
+          lockCards = true;
+          //select first clicked card img and next one clicked card img;
+          let firstFace = cardOne.querySelector(".faceCard img").src;
+          let secondFace = cardTwo.querySelector(".faceCard img").src;
+          //add func to selected 2 clicked;
+          matchCards(firstFace, secondFace);
+        }
+      };
       flipCounter();
     }
 
