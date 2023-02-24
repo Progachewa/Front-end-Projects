@@ -1,1 +1,1 @@
-# TEST
+# Poli exercises and projects

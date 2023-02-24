@@ -1,0 +1,10 @@
+.btn-primary { 
+    margin: 0.5rem;
+}
+
+.border-5 {
+    width: 15rem;
+    height: 10rem;
+    text-align: center;
+    padding-top: 1rem;
+}
